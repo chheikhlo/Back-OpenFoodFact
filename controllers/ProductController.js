@@ -19,6 +19,8 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
+module.exports = { getProductsByCategory };
+
 const getProductByCode = async (req, res) => {
   const code = req.params.code;
   try {
