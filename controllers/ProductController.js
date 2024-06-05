@@ -12,7 +12,7 @@ const getProducts = async (req, res) => {
 const getProductsByCategory = async (req, res) => {
   const category = req.params.category;
   try {
-    const products = await Food.find({ category: category });
+    const products = await Food.find({ categories: { $regex: category, $options: 'i' } });
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
