@@ -8,4 +8,6 @@ routerProduct.get('/category/:category', ProductController.getProductsByCategory
 
 routerProduct.get('/code/:code', ProductController.getProductByCode);
 
+routerProduct.get('/list/categories', ProductController.getCategories);
+
 module.exports = routerProduct;

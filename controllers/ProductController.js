@@ -19,6 +19,21 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
+const getCategories = async (req, res) => {
+  try {
+    const products = await Food.find();
+    const categoriesSet = new Set();
+    products.forEach(product => {
+      const categories = product.categories.split(',').map(category => category.trim());
+      categories.forEach(category => categoriesSet.add(category));
+    });
+    const categoriesArray = Array.from(categoriesSet);
+    res.json(categoriesArray);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = { getProductsByCategory };
 
 const getProductByCode = async (req, res) => {
@@ -35,4 +50,4 @@ const getProductByCode = async (req, res) => {
 };
 
 
-module.exports = { getProducts, getProductsByCategory, getProductByCode }
+module.exports = { getProducts, getProductsByCategory, getProductByCode, getCategories }
