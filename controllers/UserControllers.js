@@ -1,5 +1,6 @@
 const Users = require('../models/User')
-const Product = require('../models/Product')
+const Food = require('../models/Product')
+const ReplaceFood = require('../models/ReplaceFood')
 
 const loginUser = (req, res) => {
     const email = req.body.email;
@@ -41,143 +42,53 @@ const registerUser = (req, res) => {
         });
 }
 
-const addProduct = (req, res) => {
+const addProductToHisBasket = async (req, res) => {
 
-    const nom = req.body.nom;
-    const image = req.body.image;
-    const sport = req.body.sport;
-    const quantite = req.body.quantite;
-    const prix = req.body.prix;
+    const { userId, productId } = req.body;
 
-    const newProduct = new Product({
-        nom,
-        image,
-        sport,
-        quantite,
-        prix,
-    })
+    const newCart = new ReplaceFood({
+        userId: userId,
+        productId: productId,
+    });
 
-    newProduct.save()
-        .then(user => {
-            res.status(200).json({ message: 'Produit ajouter!' })
-            console.log(user)
+    res.status(201).json( await newCart.save());
+};
+
+const getCartUser = async (req, res) => {
+    const id = req.params.id;
+
+    const cart = await ReplaceFood.find({ "userId": id });
+
+    if (cart.length === 0) {
+        return res.status(404).json({ notFound: 'Produits non trouvés!' });
+    }
+
+    const productIds = cart.map(cart => cart.productId);
+    const products = await Food.find({ "_id": { $in: productIds } });
+
+    if (products.length === 0) {
+        return res.status(404).json({ notFound: 'Produits non trouvés!' });
+    }
+
+    res.status(200).json(products);
+}
+
+const deleteCartUser = (req, res) => {
+
+    const { userId, productId } = req.params
+
+
+    ReplaceFood.deleteOne({ "userId": userId, "productId": productId  })
+        .then(deletedCart => {
+            res.status(200).json({ message: "Panier(s) Supprimé(s)" });
+
+            console.log(deletedCart);
         })
         .catch(err => {
             console.error(err);
-            res.status(400).json({ error: 'Erreur client' });
+            res.status(500).json({ error: 'Erreur de serveur lors de la suppression du panier' });
         });
-}
+};
 
 
-const putProduct = (req, res) => {
-
-    const id = req.params.id;
-
-    Product.findOneAndUpdate({ _id: id }, req.body)
-        .then(product => {
-            res.status(200).json(product)
-            console.log(product)
-        })
-        .catch(err => {
-            res.status(404).json({ notFound: 'Produit non trouvé' })
-        })
-}
-
-const deleteProduct = (req, res) => {
-
-    const id = req.params.id;
-
-    Product.findByIdAndRemove(id)
-        .then(product => {
-            res.status(200).json({ message: 'Produit supprimé!' })
-            console.log(product)
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ error: 'Erreur de serveur' });
-        });
-}
-
-const getUsers = (req, res) => {
-    Users.find()
-        .then(users => {
-            if (users.length > 0) {
-                res.status(200).json(users);
-                console.log(users);
-            } else {
-                res.status(404).json({ notFound: 'Aucun membre trouvé ' });
-            }
-        })
-        .catch(err => {
-            res.status(500).json({ error: err.message });
-        })
-}
-
-const getUserById = (req, res) => {
-    Users.find({ "_id": req.params.id })
-        .then(user => {
-            res.status(200).json(user)
-            console.log(user)
-        })
-        .catch(err => {
-            res.status(404).json({ notFound: 'User non trouvé' })
-        })
-}
-
-const deleteUsers = (req, res) => {
-    const id = req.params.id;
-
-    Users.findByIdAndRemove(id)
-        .then(product => {
-            res.status(200).json({ message: 'Utilisateur supprimé!' })
-            console.log(product)
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ error: 'Erreur de serveur' });
-        });
-}
-
-const putUser = (req, res) => {
-    const id = req.params.id;
-
-    Users.findOneAndUpdate({ _id: id }, req.body)
-        .then(user => {
-            res.status(200).json(user)
-            console.log(user)
-        })
-        .catch(err => {
-            res.status(404).json({ notFound: 'Produit non trouvé' })
-        })
-}
-
-const putUserByAdmin = (req, res) => {
-
-    const id = req.params.id;
-
-    Users.findOneAndUpdate({ _id: id }, req.body)
-        .then(user => {
-            res.status(200).json(user)
-            console.log(user)
-        })
-        .catch(err => {
-            res.status(404).json({ notFound: 'Produit non trouvé' })
-        })
-}
-
-const deleteUserByAdmin = (req, res) => {
-
-    const id = req.params.id;
-
-    Users.findByIdAndRemove(id)
-        .then(user => {
-            res.status(200).json({ message: 'Utilisateur supprimé!' })
-            console.log(user)
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ error: 'Erreur de serveur' });
-        });
-}
-
-module.exports = { loginUser, putUser, getUserById, deleteUsers, getUsers, addProduct, registerUser, putProduct, deleteProduct, deleteUserByAdmin, putUserByAdmin  };
+module.exports = { loginUser, getCartUser, addProductToHisBasket, registerUser, deleteCartUser };
