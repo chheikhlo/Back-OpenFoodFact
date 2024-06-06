@@ -76,8 +76,6 @@ const getCategories = async (req, res) => {
   }
 };
 
-module.exports = { getProductsByCategory };
-
 const getProductByCode = async (req, res) => {
   const code = req.params.code;
   try {
@@ -91,5 +89,40 @@ const getProductByCode = async (req, res) => {
   }
 };
 
+const getSubstituteProduct = async (req, res) => {
+    const { category, maxAllergens } = req.params;
 
-module.exports = { getProducts, getProductsByCategory, getProductsById, getProductByCode, getCategories, getProductsByProductIdAndCategory }
+    try {
+        if (!category) {
+            return res.status(400).json({ message: 'Catégorie non définie.' });
+        }
+
+        const substituteProduct = await Food.aggregate([
+            {
+                $match: {
+                    categories: category,
+                    $expr: { $lt: [{ $size: "$allergens_tags" }, Number(maxAllergens)] }
+                }
+            },
+            {
+                $sort: { allergens_tags: 1 }
+            },
+            {
+                $limit: 1
+            }
+        ]);
+
+        if (substituteProduct.length > 0) {
+            res.json(substituteProduct[0]);
+        } else {
+            res.status(404).json({ message: 'Aucun produit de substitution trouvé.' });
+        }
+    } catch (error) {
+        console.error('Erreur lors de la recherche de substitution:', error);
+        res.status(500).json({ message: 'Erreur lors de la recherche de substitution.' });
+    }
+};
+
+
+
+module.exports = { getProducts, getProductsById, getProductsByCategory, getProductByCode, getCategories, getSubstituteProduct }

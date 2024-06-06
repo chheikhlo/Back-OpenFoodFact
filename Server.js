@@ -12,11 +12,14 @@ app.use(express.json())
 
 const routesProduct = require('./routes/ProductRoutes')
 const routesUser = require('./routes/UserRoutes')
+const replaceFoodRoutes = require('./routes/ReplaceFoodRoutes');
+
 
 connect()
 
 app.use('/products', routesProduct)
-app.use('', routesUser)
+app.use('/user', routesUser)
+app.use('/replacefood', replaceFoodRoutes);
 
 app.listen(port, () => {
     console.log(`Serveur à l'écoute sur le port ${port}`)

@@ -1,7 +1,7 @@
 const UserController = require("../controllers/UserControllers")
 const routerUser = require('express').Router();
 
-routerUser.post('/user/login', UserController.loginUser);
+routerUser.post('/login', UserController.loginUser);
 
 routerUser.post('/add/product/cart', UserController.addProductToHisBasket);
 

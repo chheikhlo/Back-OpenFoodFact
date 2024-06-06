@@ -4,6 +4,8 @@ const routerProduct = require('express').Router();
 
 routerProduct.get('/', ProductController.getProducts);
 
+routerProduct.get('/product-details/:id', ProductController.getProductsById);
+
 routerProduct.get('/category/:category', ProductController.getProductsByCategory);
 
 routerProduct.get('/product-details/:id', ProductController.getProductsById);
