@@ -23,7 +23,11 @@ const getProductsById = (req, res) => {
 const getProductsByCategory = async (req, res) => {
   const category = req.params.category;
   try {
-    const products = await Food.find({ categories: { $regex: category, $options: 'i' } });
+    const products = await Food.find({
+      categories: {
+        $regex: new RegExp(`(^|,)\\s*${category}\\s*(,|$)`, 'i')
+      }
+    });
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -89,40 +93,5 @@ const getProductByCode = async (req, res) => {
   }
 };
 
-const getSubstituteProduct = async (req, res) => {
-    const { category, maxAllergens } = req.params;
 
-    try {
-        if (!category) {
-            return res.status(400).json({ message: 'Catégorie non définie.' });
-        }
-
-        const substituteProduct = await Food.aggregate([
-            {
-                $match: {
-                    categories: category,
-                    $expr: { $lt: [{ $size: "$allergens_tags" }, Number(maxAllergens)] }
-                }
-            },
-            {
-                $sort: { allergens_tags: 1 }
-            },
-            {
-                $limit: 1
-            }
-        ]);
-
-        if (substituteProduct.length > 0) {
-            res.json(substituteProduct[0]);
-        } else {
-            res.status(404).json({ message: 'Aucun produit de substitution trouvé.' });
-        }
-    } catch (error) {
-        console.error('Erreur lors de la recherche de substitution:', error);
-        res.status(500).json({ message: 'Erreur lors de la recherche de substitution.' });
-    }
-};
-
-
-
-module.exports = { getProducts, getProductsById, getProductsByCategory, getProductByCode, getCategories, getSubstituteProduct }
+module.exports = { getProducts, getProductsByCategory, getProductsById, getProductByCode, getCategories, getProductsByProductIdAndCategory }

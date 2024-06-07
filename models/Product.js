@@ -8,6 +8,7 @@ const foodSchema = new mongoose.Schema({
   ingredients_text: String,
   stores_tags: [String],
   image_front_small_url: String,
+  image_thumb_url: String,
   link_page_on_openfoodfacts: String
 });
 
